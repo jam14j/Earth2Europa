@@ -11,7 +11,7 @@ rE=1561; %km
 rJE=670900; %km
 
 
-t=[7*24*3600]; %seconds
+t=[3*24*3600]; %seconds
 %%
 %Part A
 r1=[-muE/(muE+muJ)*(norm(rJE));0;0];
@@ -24,10 +24,10 @@ L1x = 6.6988e5;
 
 %%
 %Set initial LJO parameters
-v_init=50;%[0:5:50];%10.92367104; %km/s
+v_init=55;%[0:5:50];%10.92367104; %km/s
 dv=0.001; 
 dphi=0.001; 
-phi_init=0; %[0:pi/4:2*pi]; %deg2rad(47.70061087); %rad
+phi_init=3*pi/2; %[0:pi/4:2*pi]; %deg2rad(47.70061087); %rad
 rInit=5000+rJ;
 
 
