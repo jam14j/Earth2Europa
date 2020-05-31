@@ -1,4 +1,4 @@
-function drag = bEuropaAtmosphericModel(height,velocity)
+function drag = bEuropaAtmosphericModel(height,velocity,g)
 
 g = 1.315; %m/s^2
 gamma = 1.4; %O2 atmosphere, diatomic value
@@ -17,7 +17,9 @@ radius = 2.65/2; %m
 A = pi*radius^2; 
 
 density = surfaceDensity*(1-(gamma-1)*g*height/(gamma*R*T0))^(1/(gamma-1)); 
-
-drag = Cd*density*velocity^2*A/2*1000^2; 
+% if ~isreal(density)
+%     fprintf("Hello\n");
+% end
+drag = Cd*density*velocity^2*A/2;%*1000^2; 
 %fprintf('Drag = %f N\n', drag)
 end
