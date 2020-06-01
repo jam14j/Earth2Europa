@@ -31,7 +31,7 @@ diffInDays = arrivalDay-day1;
 arrivalAngle = ws*diffInDays; 
 vJEu_jci = rotz(rad2deg(arrivalAngle))*vJEu + cross([0;0;ws],vJEu); 
 
-% %Calculate the required delta v
+%Calculate the required delta v
 % rpInit = [-100000,200000];%149236.008237;
 % options = optimset('TolX',1e-12); 
 % dTotal = acos(dot(vEaJ_jci,vJEu_jci)/(norm(vEaJ_jci)*norm(vJEu_jci))); 
@@ -53,12 +53,14 @@ opts = odeset('RelTol', 1e-6, 'AbsTol', 1e-9);
 [t, x] = ode113(@(t1,x1) FODE(t1,x1,muJ), tspan, state);
 [val,ind] = min(vecnorm(transpose(x(:,1:3)))');
 r2 = x(ind,1:3);%[val,0,0];
+% r2 = [rp,0,0];
 state2 = [r2,transpose(vEaJ_jci)]; 
 tspan2 = -3600:10:36000;
+% tspan2 = 36000:-10:-3600;
 opts = odeset('RelTol', 1e-6, 'AbsTol', 1e-9);
 [t2, x2] = ode113(@(t1,x1) FODE(t1,x1,muJ), tspan2, state2);
 figure
-circle(0,0,rJ)
+% circle(0,0,rJ)
 hold on
 plot3(x(:,1),x(:,2),x(:,3));
 hold on

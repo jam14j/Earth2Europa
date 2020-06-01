@@ -1,6 +1,6 @@
 % AA279B - Class Project
 % From Earth to the Water on Europa
-% Part 3: Europa Landing
+% Part 3: Europa Landing with Drag
 % Code by:
 % Christine Hamilton and
 % Juan Martinez Castellanos

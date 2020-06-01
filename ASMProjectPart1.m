@@ -60,14 +60,24 @@ tspan = 0:1000000:(optAT-optLT)*24*3600;
 opts = odeset('RelTol', 1e-6, 'AbsTol', 1e-9);
 [t, x] = ode113(@(t1,x1) FODE(t1,x1,muS), tspan, x0);
 
+% Planet orbits
+rE_list = zeros(length(t),3);
+rJ_list = zeros(length(t),3);
+for j = 1:length(t)
+    [rE_list(j,:), v0] = findPlanet(3,optLT+1721058.5+t(j)/(24*3600));
+    [rJ_list(j,:), v0] = findPlanet(5,optLT+1721058.5+t(j)/(24*3600));
+end
+
 % Plot orbit
 [rE,vE] = findPlanet(3, optLT+1721058.5);
 [rJ,vJ] = findPlanet(5, optAT+1721058.5);
 figure
 hold on
 line(x(:,1), x(:,2));
-plot(rE(1),rE(2),'bo')
-plot(rJ(1),rJ(2),'ro')
+plot(rE_list(:,1),rE_list(:,2), 'b');
+plot(rJ_list(:,1),rJ_list(:,2), 'r');
+% plot(rE(1),rE(2),'bo')
+% plot(rJ(1),rJ(2),'ro')
 plot(0,0,'y*')
 hold off
 set(gca,'Color','k')
