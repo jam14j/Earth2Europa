@@ -5,7 +5,7 @@ gamma = 1.4; %O2 atmosphere, diatomic value
 Ru = 8314.5; 
 MW = 32; %g/cm^3
 
-numDens = 10e8; %number density of oxygen on surface, particles/cm^3
+numDens = 1000e8; %number density of oxygen on surface, particles/cm^3
 mols = 6.02e23; %avogadro's number
 
 surfaceDensity = numDens*MW/mols*1000; %surface density in kg/m^3

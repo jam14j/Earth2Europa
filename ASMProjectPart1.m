@@ -1,4 +1,4 @@
-% AA279B - Class Project
+%% AA279B - Class Project
 % From Earth to the Water on Europa
 % Part 1: Optimal Earth-Jupiter transfer orbit
 % Code by:
@@ -17,6 +17,7 @@ ATs = JD_initial+(365.25*2):10:JD_initial+(365.25*8);
 
 % Calculate delta-Vs
 dvs = zeros(length(LTs), length(ATs));
+TOFs = zeros(length(LTs), length(ATs));
 vfs = zeros(length(LTs), length(ATs),3);
 v0s = zeros(length(LTs), length(ATs),3);
 for Lidx = 1:length(LTs)
@@ -26,6 +27,7 @@ for Lidx = 1:length(LTs)
         [v0, vf] = AA279lambert_curtis(muS,rE,rJ,'pro', 0,...
                                       (ATs(Aidx)-LTs(Lidx))*24*3600);
         dvs(Lidx,Aidx) = norm(v0-vE);% + norm(vf-vJ);
+        TOFs(Lidx,Aidx) = ATs(Aidx)-LTs(Lidx);
         v0s(Lidx,Aidx,:) = v0;
         vfs(Lidx,Aidx,:) = vf;
     end
@@ -34,9 +36,10 @@ end
 % Recover dates
 LTs = LTs - 1721058.5;
 ATs = ATs - 1721058.5;
+% TOFs = ATs-LTs;
 
-% Minimize
-[minrow, minj] = min(dvs);
+%% Minimize
+[minrow, minj] = min(dvs+0.001*TOFs);
 [mindv, mink] = min(minrow);
 optAT = ATs(mink);
 optLT = LTs(minj(mink));
@@ -52,25 +55,35 @@ fprintf("Time of flight = %f years\n", (optAT-optLT)/365.25);
 fprintf("Velocity on arrival = %f km/s\n", norm(optvf));
 fprintf("Departure velocity = %f km/s\n", norm(optv0));
 
-
-% Simulate orbit
+%% Simulate orbit
 [r0, v0] = findPlanet(3,optLT+1721058.5);
 x0 = [r0; optv0];
-tspan = 0:1000000:(optAT-optLT)*24*3600;
+tspan = 0:1000:(optAT-optLT)*24*3600;
 opts = odeset('RelTol', 1e-6, 'AbsTol', 1e-9);
 [t, x] = ode113(@(t1,x1) FODE(t1,x1,muS), tspan, x0);
 
 % Planet orbits
 rE_list = zeros(length(t),3);
 rJ_list = zeros(length(t),3);
+vJ_list = zeros(length(t),3);
 for j = 1:length(t)
     [rE_list(j,:), v0] = findPlanet(3,optLT+1721058.5+t(j)/(24*3600));
-    [rJ_list(j,:), v0] = findPlanet(5,optLT+1721058.5+t(j)/(24*3600));
+    [rJ_list(j,:), vJ_list(j,:)] = findPlanet(5,optLT+1721058.5+t(j)/(24*3600));
 end
 
+%% Return values
+SOIjup = 48.2*10^6; % [km]
+r_JCI = x(:,1:3)-rJ_list(:,1:3);
+v_JCI = x(:,4:6)-vJ_list(:,1:3);
+dist2SOI = abs(vecnorm(r_JCI')'-SOIjup);
+[minDist2SOI, idxsoi] = min(dist2SOI);
+fprintf("\nMinimum distance to SOI = %f km\n", minDist2SOI);
+fprintf("Return JCI position = [%f; %f; %f] [km]\n",...
+        r_JCI(idxsoi,1), r_JCI(idxsoi,2), r_JCI(idxsoi,3));
+fprintf("Return JCI velocity = [%f; %f; %f] [km/s]\n",...
+        v_JCI(idxsoi,1), v_JCI(idxsoi,2), v_JCI(idxsoi,3));
+
 % Plot orbit
-[rE,vE] = findPlanet(3, optLT+1721058.5);
-[rJ,vJ] = findPlanet(5, optAT+1721058.5);
 figure
 hold on
 line(x(:,1), x(:,2));
@@ -78,19 +91,24 @@ plot(rE_list(:,1),rE_list(:,2), 'b');
 plot(rJ_list(:,1),rJ_list(:,2), 'r');
 % plot(rE(1),rE(2),'bo')
 % plot(rJ(1),rJ(2),'ro')
+% Plot circle
+th = 0:pi/50:2*pi;
+xcirc = SOIjup*cos(th);
+ycirc = SOIjup*sin(th);
+plot(xcirc+rJ_list(end,1), ycirc+rJ_list(end,2));
 plot(0,0,'y*')
 hold off
 set(gca,'Color','k')
 xlabel("x (km)")
 ylabel("y (km)")
-lgd = legend("Path","Earth","Jupiter","Sun");
+lgd = legend("Path","Earth","Jupiter","Jupiter's SOI","Sun");
 lgd.TextColor = 'white';
 lgd.Location = 'southeast';
 title("Minimum \DeltaV Transfer Orbit")
 axis equal
 ylim([-8e8,3e8])
 
-% Plot contour
+%% Plot contour
 figure
 hold on
 contourf(ATs, LTs, dvs, 'ShowText', 'on')
