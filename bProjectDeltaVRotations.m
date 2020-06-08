@@ -29,9 +29,9 @@ day1 = calToJD(2013,10,10,4,30,0);
 
 diffInDays = arrivalDay-day1; 
 arrivalAngle = ws*diffInDays; 
-vJEu_jci = rotz(rad2deg(arrivalAngle))*vJEu + cross([0;0;ws],vJEu); 
+vJEu_jci = rotz(rad2deg(arrivalAngle+180))*vJEu + cross([0;0;ws],vJEu); 
 
-%Calculate the required delta v
+% %Calculate the required delta v
 % rpInit = [-100000,200000];%149236.008237;
 % options = optimset('TolX',1e-12); 
 % dTotal = acos(dot(vEaJ_jci,vJEu_jci)/(norm(vEaJ_jci)*norm(vJEu_jci))); 
@@ -48,19 +48,17 @@ rp = 149236.008237;
 %Convert heliocentric vEarthJ to jupiter centric JCI frame
 r = [rp,0,0]; 
 state = [r,transpose(vJEu_jci)]; 
-tspan = -3600:10:36000;
+tspan = 0:10:36000;
 opts = odeset('RelTol', 1e-6, 'AbsTol', 1e-9);
 [t, x] = ode113(@(t1,x1) FODE(t1,x1,muJ), tspan, state);
 [val,ind] = min(vecnorm(transpose(x(:,1:3)))');
 r2 = x(ind,1:3);%[val,0,0];
-% r2 = [rp,0,0];
 state2 = [r2,transpose(vEaJ_jci)]; 
-tspan2 = -3600:10:36000;
-% tspan2 = 36000:-10:-3600;
+tspan2 = 0:10:36000;
 opts = odeset('RelTol', 1e-6, 'AbsTol', 1e-9);
 [t2, x2] = ode113(@(t1,x1) FODE(t1,x1,muJ), tspan2, state2);
 figure
-% circle(0,0,rJ)
+circle(0,0,rJ)
 hold on
 plot3(x(:,1),x(:,2),x(:,3));
 hold on
